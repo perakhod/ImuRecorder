@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0E0E10">
+
+    <!-- CONTENT AREA -->
+    <FrameLayout
+        android:id="@+id/contentArea"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- LIVE TAB -->
+        <ScrollView
+            android:id="@+id/containerLive"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    app:cardBackgroundColor="#1D1D22"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvLiveActivity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Activity: unknown"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="22sp"/>
+
+                        <TextView
+                            android:id="@+id/tvLiveConfidence"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Confidence: 0.00"
+                            android:textColor="#CFCFD6"
+                            android:textSize="14sp"/>
+
+                        <TextView
+                            android:id="@+id/tvLiveSourceHint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Activity source: sensor model"
+                            android:textColor="#9A9AA3"
+                            android:textSize="12sp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    android:id="@+id/tvAccTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Accelerometer (m/s^2)"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="10dp"/>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="320dp"
+                    android:layout_marginBottom="18dp"
+                    app:cardBackgroundColor="#1D1D22"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp">
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/chartAcc"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="10dp"/>
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    android:id="@+id/tvGyroTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gyroscope (rad/s)"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="10dp"/>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="320dp"
+                    android:layout_marginBottom="18dp"
+                    app:cardBackgroundColor="#1D1D22"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp">
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/chartGyro"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="10dp"/>
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    android:id="@+id/tvMagTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Magnetometer (uT)"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="10dp"/>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="320dp"
+                    android:layout_marginBottom="14dp"
+                    app:cardBackgroundColor="#1D1D22"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp">
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/chartMag"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="10dp"/>
+                </androidx.cardview.widget.CardView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp"/>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- RECORD TAB -->
+        <ScrollView
+            android:id="@+id/containerRecord"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#1D1D22"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Record dataset"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="20sp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Saved to Android/data/.../files/datasets/label/"
+                            android:textColor="#9A9AA3"
+                            android:textSize="12sp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:text="Label"
+                            android:textColor="#CFCFD6"
+                            android:textSize="14sp"/>
+
+                        <Spinner
+                            android:id="@+id/spinnerLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="6dp"
+                            android:backgroundTint="#BDA8FF"/>
+
+                        <Button
+                            android:id="@+id/btnStartStop"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:layout_marginTop="14dp"
+                            android:text="Start"
+                            android:textAllCaps="false"
+                            android:textSize="16sp"
+                            android:textColor="#000000"
+                            android:backgroundTint="#BDA8FF"/>
+
+                        <TextView
+                            android:id="@+id/tvRecordingStatus"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="Not recording"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp"/>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- STREAM TAB -->
+        <ScrollView
+            android:id="@+id/containerStream"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#1D1D22"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Stream to PC (MQTT)"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="20sp"/>
+
+                        <TextView
+                            android:id="@+id/tvMqttStatus"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Disconnected"
+                            android:textColor="#CFCFD6"
+                            android:textSize="14sp"/>
+
+                        <EditText
+                            android:id="@+id/etBrokerHost"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="14dp"
+                            android:hint="Broker host"
+                            android:textColor="#FFFFFF"
+                            android:textColorHint="#777780"
+                            android:inputType="text"
+                            android:backgroundTint="#BDA8FF"/>
+
+                        <EditText
+                            android:id="@+id/etBrokerPort"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="10dp"
+                            android:hint="Port"
+                            android:textColor="#FFFFFF"
+                            android:textColorHint="#777780"
+                            android:inputType="number"
+                            android:backgroundTint="#BDA8FF"/>
+
+                        <EditText
+                            android:id="@+id/etUsername"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="10dp"
+                            android:hint="Username (optional)"
+                            android:textColor="#FFFFFF"
+                            android:textColorHint="#777780"
+                            android:inputType="text"
+                            android:backgroundTint="#BDA8FF"/>
+
+                        <EditText
+                            android:id="@+id/etPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="10dp"
+                            android:hint="Password (optional)"
+                            android:textColor="#FFFFFF"
+                            android:textColorHint="#777780"
+                            android:inputType="textPassword"
+                            android:backgroundTint="#BDA8FF"/>
+
+                        <EditText
+                            android:id="@+id/etTopicPrefix"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="10dp"
+                            android:hint="Topic prefix (e.g. imu/phone1)"
+                            android:textColor="#FFFFFF"
+                            android:textColorHint="#777780"
+                            android:inputType="text"
+                            android:backgroundTint="#BDA8FF"/>
+
+                        <Button
+                            android:id="@+id/btnMqttConnect"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:layout_marginTop="14dp"
+                            android:text="Connect"
+                            android:textAllCaps="false"
+                            android:textSize="16sp"
+                            android:textColor="#000000"
+                            android:backgroundTint="#BDA8FF"/>
+
+                        <TextView
+                            android:id="@+id/tvWireFormatHelp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:lineSpacingExtra="2dp"
+                            android:text="Wire format help will appear here"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp"/>
+            </LinearLayout>
+        </ScrollView>
+
+    </FrameLayout>
+
+    <!-- BOTTOM NAV (fixed, not cut) -->
+    <LinearLayout
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
+        android:layout_height="78dp"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="#0E0E10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btnTabLive"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Live"
+            android:textAllCaps="false"
+            android:textColor="#000000"
+            android:backgroundTint="#BDA8FF"
+            android:drawableTop="@drawable/ic_live"
+            android:drawablePadding="6dp"
+            android:padding="6dp"/>
+
+        <Button
+            android:id="@+id/btnTabRecord"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:text="Record"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#1E1E1E"
+            android:drawableTop="@drawable/ic_record"
+            android:drawablePadding="6dp"
+            android:padding="6dp"/>
+
+        <Button
+            android:id="@+id/btnTabStream"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Connect"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#1E1E1E"
+            android:drawableTop="@drawable/ic_stream"
+            android:drawablePadding="6dp"
+            android:padding="6dp"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
