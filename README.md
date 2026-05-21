@@ -1,144 +1,282 @@
-## Overview
-**ImuRecorder** is a two-part project:
+# ImuRecorder
 
-- **Android app (Kotlin)** — reads IMU sensors, records datasets, trains/uses an on-device ML model, and publishes data via MQTT.
-- **PC app (Python + Qt)** — subscribes to MQTT topics, displays live charts, and shows predicted activity (`label + confidence`).
+**ImuRecorder** is an Android + PC system for recording IMU sensor data, creating custom datasets, training an activity-recognition model, and monitoring live sensor streams on a computer.
 
-The project covers the full pipeline:
-**data capture → dataset creation → model training → live prediction → PC monitoring**.
+The project implements the full workflow:
+
+```text
+IMU data capture → dataset creation → model training → live prediction → MQTT streaming → PC monitoring
+```
+
+## Project screenshots
+
+### Android application
+
+The Android app displays live IMU data, records datasets, trains/uses the activity-recognition model, and sends data to the PC through MQTT.
+
+<p align="center">
+  <img src="docs/images/mobile_1.jpg" alt="ImuRecorder Android screen 1" width="220">
+  <img src="docs/images/mobile_2.jpg" alt="ImuRecorder Android screen 2" width="220">
+  <img src="docs/images/mobile_3.jpg" alt="ImuRecorder Android screen 3" width="220">
+</p>
+
+### Dataset recording mode
+
+In dataset mode, the user selects an activity label, starts recording, performs the movement, and stops the session. The collected samples are saved as CSV files and can later be used for model training.
+
+<p align="center">
+  <img src="docs/images/dataset_mode.jpg" alt="Dataset recording mode" width="260">
+</p>
+
+### PC receiver application
+
+The PC application connects to the MQTT broker, subscribes to IMU topics, displays live charts, and shows the predicted activity with confidence.
+
+<p align="center">
+  <img src="docs/images/pc_app.jpg" alt="PC receiver application" width="760">
+</p>
 
 ---
 
-##  Features
+## Main features
 
-### Android App
-- Reads 3 IMU sensors:
-  - Accelerometer (m/s²)
-  - Gyroscope (rad/s)
-  - Magnetometer (uT)
-- Live real-time charts
-- Dataset recording mode (Start / Stop)
-- Saves recordings to CSV files
-- Real-time activity recognition
-- Streams to PC via MQTT:
-  - raw IMU packets (for charts)
-  - prediction results (`label + confidence`)
+### Android app
 
-### PC App
-- Connects to an MQTT broker (public or private)
-- Receives data in real time
-- 3 live charts (Accelerometer / Gyroscope / Magnetometer)
-- Live activity panel: **label + confidence**
-- Connection + message logs
+- Reads data from three IMU sensors:
+  - accelerometer: `ax, ay, az`
+  - gyroscope: `gx, gy, gz`
+  - magnetometer: `mx, my, mz`
+- Displays real-time charts on the phone.
+- Records datasets using a simple Start/Stop workflow.
+- Saves recordings as CSV files grouped by activity label.
+- Trains and uses a local machine-learning model for activity recognition.
+- Shows live prediction result:
+  - activity `label`
+  - prediction `confidence`
+- Publishes raw IMU data and prediction results through MQTT.
+
+### PC receiver app
+
+- Connects to a public or private MQTT broker.
+- Subscribes to the same topic prefix as the phone.
+- Receives IMU packets in real time.
+- Displays three live charts:
+  - accelerometer
+  - gyroscope
+  - magnetometer
+- Displays the recognized activity and confidence value.
+- Shows connection status and message logs.
 
 ---
 
-## Machine Learning (final model)
+## Architecture
 
-Final classifier used in the project:
+The system consists of two independent but connected parts:
 
-### **ExtraTreesClassifier (Extremely Randomized Trees)**
+```text
+Android phone
+  ├─ reads IMU sensors
+  ├─ records datasets
+  ├─ trains / runs ML model
+  └─ publishes MQTT messages
 
-The model runs with a sliding window pipeline:
-1. IMU signal is split into **sliding windows** (e.g., 128 samples, step 64)
-2. **Statistical features** are extracted from each window (e.g., mean/std/min/max/energy)
-3. The classifier outputs:
-   - `label` — predicted activity (walking/standing/…)
-   - `confidence` — prediction confidence
+MQTT broker
+  └─ transfers data between phone and PC
 
-**Why ExtraTrees:**
-- fast training and fast inference on the phone
-- robust to IMU noise and device differences
-- works great on tabular features
-- no feature scaling required (unlike many SVM setups)
+PC receiver
+  ├─ subscribes to MQTT topics
+  ├─ receives raw IMU data
+  ├─ receives activity prediction
+  └─ displays charts and status panel
+```
+
+The final version uses MQTT instead of Bluetooth. This makes the connection easier to test and more flexible because the phone and PC do not have to be in the same local network.
+
+---
+
+## Machine learning
+
+The final classifier used in the project is:
+
+### ExtraTreesClassifier
+
+The model works on sliding windows of IMU data:
+
+1. Raw IMU samples are collected from 9 channels.
+2. The signal is split into sliding windows, for example 128 samples with step 64.
+3. Statistical features are extracted from every window.
+4. The classifier predicts the current activity.
+5. The application displays the predicted label and confidence.
+
+Example features calculated for every sensor axis:
+
+- mean
+- standard deviation
+- minimum
+- maximum
+- signal energy
+
+ExtraTreesClassifier was selected because it is fast, works well with tabular statistical features, does not require feature scaling, and is practical for real-time prediction on a phone.
 
 ---
 
 ## Dataset structure
 
-Datasets are stored by activity label:
+Datasets are stored in folders named after activity labels:
+
+```text
 datasets/
-walking/
-*.csv
-standing/
-*.csv
-running/
-*.csv
-stairs_up/
-*.csv
-stairs_down/
-*.csv
+  walking/
+    *.csv
+  standing/
+    *.csv
+  running/
+    *.csv
+  stairs_up/
+    *.csv
+  stairs_down/
+    *.csv
+```
 
+Each CSV file represents one recording session.
 
+CSV row format:
 
-### CSV format (Android)
-Each `*.csv` file is one recorded session.
-Each row contains timestamp + 9 IMU channels:
+```text
 ts, ax, ay, az, gx, gy, gz, mx, my, mz
+```
 
+Where:
+
+- `ts` is the sample timestamp,
+- `ax, ay, az` are accelerometer values,
+- `gx, gy, gz` are gyroscope values,
+- `mx, my, mz` are magnetometer values.
+
+The model can be retrained after new recordings are added, so the recognition system becomes better adjusted to the user and device over time.
 
 ---
 
-## MQTT — how the connection works
+## MQTT communication
 
+ImuRecorder uses MQTT publish/subscribe communication.
 
-ImuRecorder uses MQTT (publish/subscribe):
-
-
-- The phone **publishes** data to the MQTT broker
-- The PC **subscribes** to the same topics and receives live updates
-
+The phone publishes data to a broker, and the PC receiver subscribes to the same topics.
 
 Example topic prefix:
-imu/phone1
 
+```text
+imu/phone1
+```
 
 Topics:
-- `imu/phone1/raw` — raw IMU packets (batch)
-- `imu/phone1/activity` — activity prediction `{label, confidence}`
 
-### Why a public broker?
-A public broker (e.g. `test.mosquitto.org`) makes setup easier:
-- PC and phone do **not** need to be on the same Wi-Fi network
-- quick testing without running your own server
-- scalable architecture for future features (remote monitoring)
+```text
+imu/phone1/raw       - raw IMU data packets
+imu/phone1/activity  - activity prediction: label + confidence
+```
 
-> Note: public brokers do not guarantee privacy — use a unique topic prefix.
+A public broker such as `test.mosquitto.org` can be used for quick testing.
+
+Important note: public brokers are convenient, but they do not guarantee privacy. Use a unique topic prefix or a private broker for real use.
 
 ---
 
 ## How to run
 
-## 1) Android
-**Requirements:**
+### 1. Android app
+
+Requirements:
+
 - Android Studio
 - Android phone with IMU sensors
+- Internet connection when MQTT streaming is used
 
-**Steps:**
-1. Open the project in Android Studio
-2. Run the app on your device
-3. Select an activity and record a dataset (Start/Stop)
-4. Enable MQTT streaming and set:
-   - host (e.g., `test.mosquitto.org`)
-   - port `1883`
-   - topic prefix (e.g., `imu/phone1`)
+Steps:
 
----
+1. Open the project in Android Studio.
+2. Build and run the app on a physical Android phone.
+3. Select an activity label.
+4. Record datasets using Start/Stop.
+5. Enable MQTT streaming.
+6. Set MQTT parameters, for example:
 
-## 2) PC (Receiver)
-**Requirements:**
-- Python 3.10+ (tested on Python 3.12)
-- Windows / Linux
+```text
+Host: test.mosquitto.org
+Port: 1883
+Topic prefix: imu/phone1
+```
 
-**Install dependencies:**
+### 2. PC receiver
+
+Requirements:
+
+- Python 3.10+
+- Windows or Linux
+- MQTT broker access
+
+Install dependencies:
+
 ```bash
+cd Receiver
 pip install -r requirements.txt
+```
 
-Run the app:
+Run the receiver:
+
+```bash
 python main.py
+```
 
 Example settings:
 
-- Host: test.mosquitto.org
-- Port: 1883
-- Topic prefix: imu/phone1
+```text
+Host: test.mosquitto.org
+Port: 1883
+Topic prefix: imu/phone1
+```
+
+The topic prefix must be the same on the phone and on the PC receiver.
+
+---
+
+## Technologies used
+
+- **Android / Kotlin** — mobile application and access to phone sensors.
+- **SensorManager** — reading accelerometer, gyroscope, and magnetometer data.
+- **Machine Learning** — activity classification from IMU windows.
+- **ExtraTreesClassifier** — final classifier used for prediction.
+- **MQTT** — communication between phone and PC.
+- **Python** — PC receiver application.
+- **PySide6 / Qt** — desktop GUI.
+- **pyqtgraph** — fast real-time charts.
+- **paho-mqtt** — MQTT client for Python.
+
+---
+
+## Possible future improvements
+
+- Support for multiple phones as independent IMU sensors.
+- Saving received data on the PC side.
+- Session replay in the PC application.
+- Private MQTT broker with TLS and authentication.
+- More activity classes.
+- Web dashboard for remote monitoring.
+
+---
+
+## Images in this README
+
+Images were copied from the project report into:
+
+```text
+docs/images/
+```
+
+The README uses relative paths, for example:
+
+```markdown
+<img src="docs/images/pc_app.jpg" alt="PC receiver application" width="760">
+```
+
+This works on GitHub because the image paths are relative to the repository root.
