@@ -264,19 +264,3 @@ The topic prefix must be the same on the phone and on the PC receiver.
 - Web dashboard for remote monitoring.
 
 ---
-
-## Images in this README
-
-Images were copied from the project report into:
-
-```text
-docs/images/
-```
-
-The README uses relative paths, for example:
-
-```markdown
-<img src="docs/images/pc_app.jpg" alt="PC receiver application" width="760">
-```
-
-This works on GitHub because the image paths are relative to the repository root.
